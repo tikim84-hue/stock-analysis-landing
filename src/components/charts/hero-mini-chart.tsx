@@ -55,8 +55,8 @@ export function HeroMiniChart() {
               color: "#e2e8f0",
             }}
             labelStyle={{ color: "#94a3b8" }}
-            formatter={(value: number, name: string) => [
-              `${value.toFixed(1)}`,
+            formatter={(value, name) => [
+              Number(value).toFixed(1),
               name === "portfolio" ? "내 포트폴리오" : "KOSPI",
             ]}
           />

@@ -52,7 +52,7 @@ export function DrawdownCurve() {
               fontSize: 12,
               color: "#e2e8f0",
             }}
-            formatter={(value: number) => [`${value.toFixed(1)}%`, "낙폭"]}
+            formatter={(value) => [`${Number(value).toFixed(1)}%`, "낙폭"]}
           />
           <Area
             type="monotone"

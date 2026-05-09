@@ -49,10 +49,10 @@ export function SectorAttribution() {
               color: "#e2e8f0",
             }}
             cursor={{ fill: "rgba(148,163,184,0.06)" }}
-            formatter={(value: number) => [
-              `${value > 0 ? "+" : ""}${value.toFixed(1)}%p`,
-              "기여도",
-            ]}
+            formatter={(value) => {
+              const v = Number(value);
+              return [`${v > 0 ? "+" : ""}${v.toFixed(1)}%p`, "기여도"];
+            }}
           />
           <Bar dataKey="contribution" radius={[4, 4, 4, 4]}>
             {sectorAttribution.map((s) => (
