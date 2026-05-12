@@ -1,0 +1,14 @@
+
+> stock-analysis-landing@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://10.32.100.53:3000
+✓ Ready in 775ms
+
+The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+ GET / 200 in 719ms (next.js: 254ms, application-code: 464ms)
