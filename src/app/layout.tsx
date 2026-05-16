@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { AuthProvider } from "@/components/auth/auth-context";
+import { AuthDialog } from "@/components/auth/auth-dialog";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -28,7 +30,10 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        {children}
+        <AuthProvider>
+          {children}
+          <AuthDialog />
+        </AuthProvider>
       </body>
     </html>
   );

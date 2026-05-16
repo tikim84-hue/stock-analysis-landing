@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Pencil, Plus, RotateCcw, Trash2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { LogIn, Pencil, Plus, RotateCcw, Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { TradeHistoryForm } from "@/components/sections/trade-history-form";
+import { useAuth } from "@/components/auth/auth-context";
 import { useTrades } from "@/lib/use-trades";
 import {
   computeDerived,
@@ -27,9 +28,16 @@ type FormMode =
   | { kind: "edit"; trade: Trade };
 
 export function TradeHistory() {
+  const { user, loading: authLoading, openLogin } = useAuth();
   const { trades, isHydrated, addTrade, updateTrade, removeTrade, resetTrades } =
     useTrades();
   const [formMode, setFormMode] = useState<FormMode>({ kind: "closed" });
+
+  useEffect(() => {
+    if (!user) setFormMode({ kind: "closed" });
+  }, [user]);
+
+  const showAuthGate = !authLoading && !user;
 
   const summary = useMemo(() => {
     if (trades.length === 0) {
@@ -89,29 +97,50 @@ export function TradeHistory() {
               내 매매내역으로 직접 계산해보기
             </h2>
             <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-              처분이 끝난 거래를 입력하면 수수료와 증권거래세를 자동으로 차감해 실현 손익과 수익률을 계산합니다. 입력 데이터는 브라우저(localStorage)에만 저장됩니다.
+              처분이 끝난 거래를 입력하면 수수료와 증권거래세를 자동으로 차감해 실현 손익과 수익률을 계산합니다.
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handleReset}
-              className="inline-flex items-center gap-1.5 rounded-md border border-border/60 px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/40"
-            >
-              <RotateCcw className="h-4 w-4" />
-              초기화
-            </button>
-            <button
-              type="button"
-              onClick={() => setFormMode({ kind: "create" })}
-              className="inline-flex items-center gap-1.5 rounded-md bg-highlight/90 px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-highlight"
-            >
-              <Plus className="h-4 w-4" />
-              거래 추가
-            </button>
-          </div>
+          {!showAuthGate ? (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleReset}
+                className="inline-flex items-center gap-1.5 rounded-md border border-border/60 px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/40"
+              >
+                <RotateCcw className="h-4 w-4" />
+                초기화
+              </button>
+              <button
+                type="button"
+                onClick={() => setFormMode({ kind: "create" })}
+                className="inline-flex items-center gap-1.5 rounded-md bg-highlight/90 px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-highlight"
+              >
+                <Plus className="h-4 w-4" />
+                거래 추가
+              </button>
+            </div>
+          ) : null}
         </div>
 
+        {showAuthGate ? (
+          <div className="rounded-lg border border-border/60 bg-card/60 p-10 text-center">
+            <h3 className="text-lg font-semibold">
+              로그인하면 본인 거래내역을 안전하게 저장할 수 있습니다
+            </h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              모든 데이터는 본인 계정에서만 보입니다.
+            </p>
+            <button
+              type="button"
+              onClick={openLogin}
+              className="mt-6 inline-flex items-center gap-1.5 rounded-md bg-highlight/90 px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-highlight"
+            >
+              <LogIn className="h-4 w-4" />
+              로그인 / 회원가입
+            </button>
+          </div>
+        ) : (
+          <>
         <div className="mb-8 grid gap-3 md:grid-cols-3">
           <SummaryCard
             label="처분 거래 수"
@@ -273,6 +302,8 @@ export function TradeHistory() {
         <p className="mt-4 text-xs text-muted-foreground/80">
           ※ 자동 계산은 한국 시장 평균치(수수료 0.015%, 증권거래세 0.18%) 기준이며 실제 영수증과 차이가 있을 수 있습니다. 폼에서 수동으로 덮어쓸 수 있습니다.
         </p>
+          </>
+        )}
       </div>
     </section>
   );

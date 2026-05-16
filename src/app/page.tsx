@@ -8,6 +8,7 @@ import { PainPoints } from "@/components/sections/pain-points";
 // import { RiskCost } from "@/components/sections/risk-cost";
 import { HowItWorks } from "@/components/sections/how-it-works";
 import { TradeHistory } from "@/components/sections/trade-history";
+import { Guestbook } from "@/components/sections/guestbook";
 // import { Faq } from "@/components/sections/faq";
 // import { SiteFooter } from "@/components/sections/site-footer";
 
@@ -23,6 +24,7 @@ export default function Home() {
         {/* <RiskCost /> */}
         <HowItWorks />
         <TradeHistory />
+        <Guestbook />
         {/* <Faq /> */}
       </main>
       {/* <SiteFooter /> */}

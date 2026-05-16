@@ -1,4 +1,5 @@
 import { LineChart } from "lucide-react";
+import { AuthButton } from "@/components/auth/auth-button";
 
 const NAV_ITEMS = [
   { href: "#metrics", label: "핵심 지표" },
@@ -31,7 +32,7 @@ export function SiteHeader() {
             </a>
           ))}
         </nav>
-        <div className="text-xs text-muted-foreground">데모 · v0.1</div>
+        <AuthButton />
       </div>
     </header>
   );
