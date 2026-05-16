@@ -4,7 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 const DEFAULT_MODEL = "anthropic/claude-3.5-haiku";
 const MAX_INPUT_LEN = 4000;
-const MAX_TOKENS = 800;
+const MAX_TOKENS = 400;
+const SYSTEM_PROMPT =
+  "한국어로 답해. 길이는 3~5줄. 군더더기·서론·맺음말 없이 핵심만. 코드/표가 꼭 필요하면 짧게 한 블록만.";
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -48,7 +50,10 @@ export async function POST(request: NextRequest) {
     },
     body: JSON.stringify({
       model,
-      messages: [{ role: "user", content: input }],
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: input },
+      ],
       max_tokens: MAX_TOKENS,
     }),
   });
