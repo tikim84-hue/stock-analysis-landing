@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { AuthProvider } from "@/components/auth/auth-context";
 import { AuthDialog } from "@/components/auth/auth-dialog";
 import "./globals.css";
@@ -34,6 +35,7 @@ export default function RootLayout({
           {children}
           <AuthDialog />
         </AuthProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
