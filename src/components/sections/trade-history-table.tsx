@@ -87,7 +87,7 @@ export function TradeHistoryTable({
               <TableHead className="text-right">수수료</TableHead>
               <TableHead className="text-right">증권거래세</TableHead>
               <TableHead className="text-right">거래차액</TableHead>
-              <TableHead className="text-right">수익율</TableHead>
+              <TableHead className="text-right">수익률</TableHead>
               <TableHead className="text-right">관리</TableHead>
             </TableRow>
           </TableHeader>
