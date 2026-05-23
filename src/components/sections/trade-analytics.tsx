@@ -2,6 +2,7 @@
 
 import { EquityCurveChart } from "@/components/sections/equity-curve-chart";
 import { PnlByTickerChart } from "@/components/sections/pnl-by-ticker-chart";
+import { MonthlyPnlChart } from "@/components/sections/monthly-pnl-chart";
 import type { Trade } from "@/lib/trades";
 
 type Props = {
@@ -30,6 +31,7 @@ export function TradeAnalytics({ trades, isHydrated }: Props) {
     <div className="flex flex-col gap-4">
       <EquityCurveChart trades={trades} />
       <PnlByTickerChart trades={trades} />
+      <MonthlyPnlChart trades={trades} />
     </div>
   );
 }

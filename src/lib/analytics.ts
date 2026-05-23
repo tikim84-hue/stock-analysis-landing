@@ -11,6 +11,11 @@ export type TickerPnl = {
   pnl: number;
 };
 
+export type MonthlyPnl = {
+  month: string;
+  pnl: number;
+};
+
 export function buildEquityCurve(trades: Trade[]): EquityPoint[] {
   const sorted = [...trades].sort((a, b) =>
     a.sellDate.localeCompare(b.sellDate),
@@ -39,4 +44,16 @@ export function buildPnlByTicker(trades: Trade[]): TickerPnl[] {
     (a, b) =>
       Math.abs(b.pnl) - Math.abs(a.pnl) || a.ticker.localeCompare(b.ticker),
   );
+}
+
+export function buildMonthlyPnl(trades: Trade[]): MonthlyPnl[] {
+  const groups = new Map<string, number>();
+  for (const t of trades) {
+    const month = t.sellDate.slice(0, 7);
+    const pnl = computeDerived(t).pnl;
+    groups.set(month, (groups.get(month) ?? 0) + pnl);
+  }
+  return [...groups.entries()]
+    .map(([month, pnl]) => ({ month, pnl }))
+    .sort((a, b) => a.month.localeCompare(b.month));
 }
