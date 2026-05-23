@@ -11,7 +11,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { buildEquityCurve, type EquityPoint } from "@/lib/analytics";
+import { buildEquityCurve } from "@/lib/analytics";
 import { formatSignedCurrency, type Trade } from "@/lib/trades";
 
 type Props = { trades: Trade[] };
@@ -86,7 +86,7 @@ export function EquityCurveChart({ trades }: Props) {
               stroke={stroke}
               strokeWidth={2}
               dot={{ r: 3, fill: stroke }}
-              activeDot={{ r: 5 }}
+              activeDot={{ r: 5, fill: stroke }}
             />
           </LineChart>
         </ResponsiveContainer>
@@ -94,5 +94,3 @@ export function EquityCurveChart({ trades }: Props) {
     </div>
   );
 }
-
-export type { EquityPoint };
