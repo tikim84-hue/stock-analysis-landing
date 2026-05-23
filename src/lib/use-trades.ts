@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/auth/auth-context";
 import { createClient } from "@/lib/supabase/client";
 import type { Tables, TablesInsert } from "@/lib/supabase/database.types";
@@ -43,10 +43,6 @@ export function useTrades() {
   const { user, loading: authLoading } = useAuth();
   const [trades, setTrades] = useState<Trade[]>([]);
   const [isHydrated, setIsHydrated] = useState(false);
-  const tradesRef = useRef<Trade[]>([]);
-  useEffect(() => {
-    tradesRef.current = trades;
-  }, [trades]);
 
   const reload = useCallback(async () => {
     if (!user) {
@@ -125,13 +121,14 @@ export function useTrades() {
   );
 
   const resetTrades = useCallback(async () => {
-    const ids = tradesRef.current.map((t) => t.id);
-    if (ids.length > 0) {
-      const { error } = await supabase.from("trades").delete().in("id", ids);
-      if (error) {
-        console.error("[trades] reset (delete) failed:", error.message);
-        return;
-      }
+    if (!user) return;
+    const { error: deleteError } = await supabase
+      .from("trades")
+      .delete()
+      .eq("user_id", user.id);
+    if (deleteError) {
+      console.error("[trades] reset (delete) failed:", deleteError.message);
+      return;
     }
     const { data, error } = await supabase
       .from("trades")
@@ -142,7 +139,7 @@ export function useTrades() {
       return;
     }
     setTrades(data.map(rowToTrade));
-  }, [supabase]);
+  }, [supabase, user]);
 
   return { trades, isHydrated, addTrade, updateTrade, removeTrade, resetTrades };
 }
