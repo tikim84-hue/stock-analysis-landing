@@ -8,13 +8,46 @@ const MAX_TOKENS = 400;
 const SYSTEM_PROMPT =
   "한국어로 답해. 길이는 3~5줄. 군더더기·서론·맺음말 없이 핵심만. 코드/표가 꼭 필요하면 짧게 한 블록만.";
 
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX = 20;
+// In-memory per-instance limiter. Fluid Compute reuses instances so this catches burst abuse,
+// but it's not a globally consistent cap — replace with Upstash Ratelimit if multi-instance correctness matters.
+const rateBuckets = new Map<string, number[]>();
+
+function allowRequest(userId: string): boolean {
+  const now = Date.now();
+  const cutoff = now - RATE_LIMIT_WINDOW_MS;
+  const bucket = (rateBuckets.get(userId) ?? []).filter((t) => t > cutoff);
+  if (bucket.length >= RATE_LIMIT_MAX) {
+    rateBuckets.set(userId, bucket);
+    return false;
+  }
+  bucket.push(now);
+  rateBuckets.set(userId, bucket);
+  return true;
+}
+
 export async function POST(request: NextRequest) {
+  const contentType = request.headers.get("content-type") ?? "";
+  if (!contentType.toLowerCase().includes("application/json")) {
+    return NextResponse.json(
+      { error: "content-type must be application/json" },
+      { status: 415 },
+    );
+  }
+
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+  if (!allowRequest(user.id)) {
+    return NextResponse.json(
+      { error: "요청이 너무 잦습니다. 잠시 후 다시 시도하세요." },
+      { status: 429 },
+    );
   }
 
   let body: { input?: unknown };
@@ -33,9 +66,10 @@ export async function POST(request: NextRequest) {
 
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
+    console.error("[ai] OPENROUTER_API_KEY is missing");
     return NextResponse.json(
-      { error: "OPENROUTER_API_KEY not configured" },
-      { status: 500 },
+      { error: "서비스를 일시적으로 사용할 수 없습니다" },
+      { status: 503 },
     );
   }
   const model = process.env.OPENROUTER_MODEL ?? DEFAULT_MODEL;
@@ -85,7 +119,7 @@ export async function POST(request: NextRequest) {
     .single();
   if (error) {
     console.error("[ai] db insert failed:", error.message);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: "저장 실패" }, { status: 500 });
   }
   return NextResponse.json(data);
 }
