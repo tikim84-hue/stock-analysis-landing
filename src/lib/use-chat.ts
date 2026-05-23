@@ -20,14 +20,16 @@ export function useChat() {
 
   useEffect(() => {
     if (authLoading) return;
-    if (!user) {
-      setRows([]);
-      setIsHydrated(true);
-      return;
-    }
     let cancelled = false;
-    setIsHydrated(false);
     (async () => {
+      if (!user) {
+        if (cancelled) return;
+        setRows([]);
+        setIsHydrated(true);
+        return;
+      }
+      if (cancelled) return;
+      setIsHydrated(false);
       const { data, error } = await supabase
         .from("messages")
         .select("id, ai_input, ai_output, created_at")

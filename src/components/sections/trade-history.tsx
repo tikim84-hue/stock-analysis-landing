@@ -1,9 +1,12 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { LogIn, Plus, RotateCcw } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TradeHistoryTable } from "@/components/sections/trade-history-table";
+import {
+  TradeHistoryTable,
+  type FormMode,
+} from "@/components/sections/trade-history-table";
 import { TradeAnalytics } from "@/components/sections/trade-analytics";
 import { useAuth } from "@/components/auth/auth-context";
 import { useTrades } from "@/lib/use-trades";
@@ -21,7 +24,7 @@ export function TradeHistory() {
   const { trades, isHydrated, addTrade, updateTrade, removeTrade, resetTrades } =
     useTrades();
   const [activeTab, setActiveTab] = useState<TabValue>("history");
-  const [pendingCreate, setPendingCreate] = useState(false);
+  const [formMode, setFormMode] = useState<FormMode>({ kind: "closed" });
 
   const showAuthGate = !authLoading && !user;
 
@@ -42,8 +45,6 @@ export function TradeHistory() {
       avgReturn: totalReturn / trades.length,
     };
   }, [trades]);
-
-  const handleCreateHandled = useCallback(() => setPendingCreate(false), []);
 
   function handleReset() {
     if (typeof window === "undefined") return;
@@ -85,7 +86,7 @@ export function TradeHistory() {
               </button>
               <button
                 type="button"
-                onClick={() => setPendingCreate(true)}
+                onClick={() => setFormMode({ kind: "create" })}
                 className="inline-flex items-center gap-1.5 rounded-md bg-highlight/90 px-4 py-2 text-sm font-medium text-background transition-colors hover:bg-highlight"
               >
                 <Plus className="h-4 w-4" />
@@ -166,9 +167,8 @@ export function TradeHistory() {
                 <TradeHistoryTable
                   trades={trades}
                   isHydrated={isHydrated}
-                  hasUser={Boolean(user)}
-                  pendingCreate={pendingCreate}
-                  onCreateHandled={handleCreateHandled}
+                  formMode={formMode}
+                  onFormModeChange={setFormMode}
                   addTrade={addTrade}
                   updateTrade={updateTrade}
                   removeTrade={removeTrade}

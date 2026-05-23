@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import {
   Table,
@@ -20,7 +19,7 @@ import {
 } from "@/lib/trades";
 import { cn } from "@/lib/utils";
 
-type FormMode =
+export type FormMode =
   | { kind: "closed" }
   | { kind: "create" }
   | { kind: "edit"; trade: Trade };
@@ -28,9 +27,8 @@ type FormMode =
 type Props = {
   trades: Trade[];
   isHydrated: boolean;
-  hasUser: boolean;
-  pendingCreate: boolean;
-  onCreateHandled: () => void;
+  formMode: FormMode;
+  onFormModeChange: (mode: FormMode) => void;
   addTrade: (input: Omit<Trade, "id">) => void;
   updateTrade: (id: string, input: Omit<Trade, "id">) => void;
   removeTrade: (id: string) => void;
@@ -39,33 +37,19 @@ type Props = {
 export function TradeHistoryTable({
   trades,
   isHydrated,
-  hasUser,
-  pendingCreate,
-  onCreateHandled,
+  formMode,
+  onFormModeChange,
   addTrade,
   updateTrade,
   removeTrade,
 }: Props) {
-  const [formMode, setFormMode] = useState<FormMode>({ kind: "closed" });
-
-  useEffect(() => {
-    if (!hasUser) setFormMode({ kind: "closed" });
-  }, [hasUser]);
-
-  useEffect(() => {
-    if (pendingCreate) {
-      setFormMode({ kind: "create" });
-      onCreateHandled();
-    }
-  }, [pendingCreate, onCreateHandled]);
-
   function handleSubmit(input: Omit<Trade, "id">) {
     if (formMode.kind === "edit") {
       updateTrade(formMode.trade.id, input);
     } else {
       addTrade(input);
     }
-    setFormMode({ kind: "closed" });
+    onFormModeChange({ kind: "closed" });
   }
 
   function handleDelete(trade: Trade) {
@@ -84,7 +68,7 @@ export function TradeHistoryTable({
             key={formMode.kind === "edit" ? formMode.trade.id : "create"}
             initial={formMode.kind === "edit" ? formMode.trade : undefined}
             onSubmit={handleSubmit}
-            onCancel={() => setFormMode({ kind: "closed" })}
+            onCancel={() => onFormModeChange({ kind: "closed" })}
           />
         </div>
       ) : null}
@@ -177,7 +161,7 @@ export function TradeHistoryTable({
                         <RowAction
                           label="수정"
                           onClick={() =>
-                            setFormMode({ kind: "edit", trade })
+                            onFormModeChange({ kind: "edit", trade })
                           }
                         >
                           <Pencil className="h-3.5 w-3.5" />

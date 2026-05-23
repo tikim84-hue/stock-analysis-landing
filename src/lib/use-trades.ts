@@ -63,8 +63,9 @@ export function useTrades() {
   useEffect(() => {
     if (authLoading) return;
     let cancelled = false;
-    setIsHydrated(false);
     (async () => {
+      if (cancelled) return;
+      setIsHydrated(false);
       await reload();
       if (!cancelled) setIsHydrated(true);
     })();
