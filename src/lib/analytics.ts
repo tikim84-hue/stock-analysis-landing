@@ -30,12 +30,13 @@ export function buildPnlByTicker(trades: Trade[]): TickerPnl[] {
     const pnl = computeDerived(t).pnl;
     const existing = groups.get(t.ticker);
     if (existing) {
-      existing.pnl += pnl;
+      groups.set(t.ticker, { ...existing, pnl: existing.pnl + pnl });
     } else {
       groups.set(t.ticker, { ticker: t.ticker, name: t.name, pnl });
     }
   }
   return [...groups.values()].sort(
-    (a, b) => Math.abs(b.pnl) - Math.abs(a.pnl),
+    (a, b) =>
+      Math.abs(b.pnl) - Math.abs(a.pnl) || a.ticker.localeCompare(b.ticker),
   );
 }
