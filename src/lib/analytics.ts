@@ -16,6 +16,13 @@ export type MonthlyPnl = {
   pnl: number;
 };
 
+export type HoldingPoint = {
+  ticker: string;
+  name: string;
+  holdingDays: number;
+  returnRate: number;
+};
+
 export function buildEquityCurve(trades: Trade[]): EquityPoint[] {
   const sorted = [...trades].sort((a, b) =>
     a.sellDate.localeCompare(b.sellDate),
@@ -56,4 +63,23 @@ export function buildMonthlyPnl(trades: Trade[]): MonthlyPnl[] {
   return [...groups.entries()]
     .map(([month, pnl]) => ({ month, pnl }))
     .sort((a, b) => a.month.localeCompare(b.month));
+}
+
+const DAY_MS = 86_400_000;
+
+export function buildHoldingScatter(trades: Trade[]): HoldingPoint[] {
+  const points: HoldingPoint[] = [];
+  for (const t of trades) {
+    const buy = Date.parse(t.buyDate);
+    const sell = Date.parse(t.sellDate);
+    if (Number.isNaN(buy) || Number.isNaN(sell)) continue;
+    const holdingDays = Math.max(0, Math.round((sell - buy) / DAY_MS));
+    points.push({
+      ticker: t.ticker,
+      name: t.name,
+      holdingDays,
+      returnRate: computeDerived(t).returnRate,
+    });
+  }
+  return points;
 }

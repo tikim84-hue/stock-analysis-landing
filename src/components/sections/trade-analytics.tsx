@@ -3,6 +3,7 @@
 import { EquityCurveChart } from "@/components/sections/equity-curve-chart";
 import { PnlByTickerChart } from "@/components/sections/pnl-by-ticker-chart";
 import { MonthlyPnlChart } from "@/components/sections/monthly-pnl-chart";
+import { HoldingReturnScatter } from "@/components/sections/holding-return-scatter";
 import type { Trade } from "@/lib/trades";
 
 type Props = {
@@ -32,6 +33,7 @@ export function TradeAnalytics({ trades, isHydrated }: Props) {
       <EquityCurveChart trades={trades} />
       <PnlByTickerChart trades={trades} />
       <MonthlyPnlChart trades={trades} />
+      <HoldingReturnScatter trades={trades} />
     </div>
   );
 }
