@@ -69,7 +69,7 @@ export function PnlByTickerChart({ trades }: Props) {
               labelStyle={{ color: "var(--muted-foreground)" }}
               formatter={(value, _name, item) => [
                 `${formatSignedCurrency(Number(value))}원`,
-                `${item.payload.name} (${item.payload.ticker})`,
+                `${item.payload?.name ?? ""} (${item.payload?.ticker ?? ""})`,
               ]}
               labelFormatter={() => ""}
             />
