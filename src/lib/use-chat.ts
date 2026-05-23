@@ -3,12 +3,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/auth/auth-context";
 import { createClient } from "@/lib/supabase/client";
+import type { Tables } from "@/lib/supabase/database.types";
 
-export type ChatRow = {
-  id: string;
+export type ChatRow = Pick<Tables<"messages">, "id" | "created_at"> & {
   ai_input: string;
   ai_output: string;
-  created_at: string;
 };
 
 export function useChat() {
@@ -38,7 +37,11 @@ export function useChat() {
       if (error) {
         console.error("[chat] load failed:", error.message);
       } else {
-        setRows((data ?? []) as ChatRow[]);
+        setRows(
+          (data ?? []).filter(
+            (r): r is ChatRow => r.ai_input !== null && r.ai_output !== null,
+          ),
+        );
       }
       setIsHydrated(true);
     })();

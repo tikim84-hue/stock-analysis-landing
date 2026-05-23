@@ -3,20 +3,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "@/components/auth/auth-context";
 import { createClient } from "@/lib/supabase/client";
+import type { Tables, TablesInsert } from "@/lib/supabase/database.types";
 import { SEED_TRADES, type Trade } from "@/lib/trades";
 
-type Row = {
-  id: string;
-  ticker: string;
-  name: string;
-  buy_price: number | string;
-  quantity: number;
-  buy_date: string;
-  sell_date: string;
-  sell_amount: number | string;
-  fee_override: number | string | null;
-  tax_override: number | string | null;
-};
+type Row = Tables<"trades">;
 
 function rowToTrade(r: Row): Trade {
   const t: Trade = {
@@ -34,7 +24,7 @@ function rowToTrade(r: Row): Trade {
   return t;
 }
 
-function tradeToInsert(t: Omit<Trade, "id">) {
+function tradeToInsert(t: Omit<Trade, "id">): TablesInsert<"trades"> {
   return {
     ticker: t.ticker,
     name: t.name,
@@ -71,7 +61,7 @@ export function useTrades() {
       console.error("[trades] load failed:", error.message);
       return;
     }
-    setTrades((data as Row[]).map(rowToTrade));
+    setTrades(data.map(rowToTrade));
   }, [supabase, user]);
 
   useEffect(() => {
@@ -98,7 +88,7 @@ export function useTrades() {
         console.error("[trades] add failed:", error.message);
         return;
       }
-      const inserted = rowToTrade(data as Row);
+      const inserted = rowToTrade(data);
       setTrades((prev) => [inserted, ...prev]);
     },
     [supabase],
@@ -116,7 +106,7 @@ export function useTrades() {
         console.error("[trades] update failed:", error.message);
         return;
       }
-      const updated = rowToTrade(data as Row);
+      const updated = rowToTrade(data);
       setTrades((prev) => prev.map((t) => (t.id === id ? updated : t)));
     },
     [supabase],
@@ -151,7 +141,7 @@ export function useTrades() {
       console.error("[trades] reset (insert) failed:", error.message);
       return;
     }
-    setTrades((data as Row[]).map(rowToTrade));
+    setTrades(data.map(rowToTrade));
   }, [supabase]);
 
   return { trades, isHydrated, addTrade, updateTrade, removeTrade, resetTrades };
